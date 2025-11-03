@@ -26,6 +26,7 @@ void initSwitches() {
 
 // スイッチ読み取り関数
 uint8_t readSwitches() {
+  // 結果格納用変数
   uint8_t result = 0;
   
   for (int i = 0; i < 8; i++) {
@@ -48,11 +49,43 @@ uint8_t readSwitches() {
     
     // ビットセット
       if (switchState[i] == LOW) {
-        result |= (1 << i);   // 押されている → 1をセット
+        result |= (1 << i);
     } else {
-        result &= ~(1 << i);  // 離されている → 0をセット
+        result &= ~(1 << i);
     }
   }
   
   return result;
+}
+
+//　スイッチ状態の取得関数
+bool checkSWState(int bit){
+  // 引数のビット範囲のチェック
+  if(bit < 0 || bit > 7){
+    return false;
+  }
+  // スイッチ状態の取得
+  uint8_t currentSWState = readSwitches();
+
+  // 指定ビットの状態を返す
+  return (currentSWState >> bit) & 0x01;
+}
+
+// スイッチ状態のデバッグ出力
+void debugPrintSwitches() {
+  uint8_t currentSWState = readSwitches();
+
+  Serial.println("=== Switch Status ===");
+  Serial.println("Individual Switches:");
+  for (int i = 0; i < 8; i++) {
+    Serial.print("  SW");
+    Serial.print(i);
+    Serial.print(": ");
+    if ((currentSWState >> i) & 0x01) {
+      Serial.println("ON (Pressed)");
+    } else {
+      Serial.println("OFF (Released)");
+    }
+  }
+  Serial.println("====================");
 }

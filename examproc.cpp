@@ -5,10 +5,10 @@
 
 // 試験状態関数テーブル
 ExamStateFunc examStateFuncs[EXAM_MODE_NUM] = {
-    examReady,     // EXAM_READY = 0
-    examRunning,   // EXAM_RUNNING = 1
-    examPaused,    // EXAM_PAUSED = 2
-    examCompleted  // EXAM_COMPLETED = 3
+    examReady,     // 試験初期化
+    examRunning,   // 試験中
+    examPaused,    // 試験停止中
+    examCompleted  // 試験完了
 };
 
 // 試験状態変数
@@ -21,13 +21,15 @@ unsigned int examNumber = 0;
 unsigned int  restTime = 0;
 // モーター駆動時間格納用変数
 double oneWayTimes[SAMPLE_SIZE] = {0};
+// 時間用関数
+unsigned long prevbebugTime = 0;
 
-// 現在のセンサ状態
+// 現在のセンサ状態(おそらく2つ)
 SensorState currentState = {false, false};
 
-// 内部関数
-bool checkZero(double *oneWayTimes);
-double calcMean(double *oneWayTimes);
+// 内部使用関数
+bool checkZero(double *oneWayTimes); // 配列に0が含まれていないかの確認
+double calcMean(double *oneWayTimes); //　試験時間平均算出用
 
 // 初期化宣言
 void initialize(){
@@ -42,15 +44,22 @@ void initialize(){
 // 試験処理
 void examproc(){
     // スイッチ状態読み取り
-    uint8_t switches = readSwitches(); 
+    uint8_t switches = readSwitches();
 
-    // ここに試験の条件と具体的に処理をいれて実行関数を制御する
+    // デバッグ
+    if(millis() - prevbebugTime >= 1000){
+        debugPrintSwitches();
+        debugPrintMotor();
+        //　時間の更新
+        prevbebugTime = millis();
+    }
+
+    // 以下にに試験の条件と具体的に処理をいれて実行関数を制御する
 
     // 現在の状態の実行
     examStateFuncs[examMode](switches);
 }
 
-// 以下の具体的処理は後で実装
 // 試験処理
 void examReady(uint8_t switcheState){
     // 試験条件の設定
@@ -67,38 +76,49 @@ void examReady(uint8_t switcheState){
 
 // 試験中の挙動
 void examRunning(uint8_t switcheState){
-    // 動作方向設定：static MotorDirection currentDirection = MOTOR_FORWARD;
-    // static int Countidx = 0;
-    // static double mean = 0;
+    //   static MotorDirection currentDirection = MOTOR_FORWARD;
+    //   static int Countidx = 0;
+    //   static double mean = 0;
+    //   static unsigned long startTime = 0;
 
-    // センサ状態読み込み
-    // currentState.sensor1 =  Sensor1State();
-    // currentState.sensor2 =  Sensor2State();
+    //   // センサ状態読み込み
+    //   currentState.sensor1 = Sensor1State();
+    //   currentState.sensor2 = Sensor2State();
+    // 　割り込み時の反転処理
+    // 　currentDirection = (currentDirection == MOTOR_FORWARD) ? MOTOR_REVERSE : MOTOR_FORWARD;
 
-    // orでtrueのとき
+    //   // 現在の処理時間の異常の判定
+    //       if (checkZero(oneWayTimes)) {
+    //           mean = calcMean(oneWayTimes);
+    //           unsigned long currentElapsed = millis() - startTime;
+    //           if (currentElapsed > mean * 1.5) {
+    //               // 異常検出時
+    //               examMode = EXAM_PAUSED;
+    //               return;
+    //           }
+    //       }
+    //   // 割り込み発生時
+    //   if(currentState.sensor1 || currentState.sensor2){
+    //       // 経過時間計算
+    //       unsigned long now = millis();
+    //       unsigned long elapsedTime = now - startTime;
+    //       
+    //       // 正常なので記録
+    //       oneWayTimes[Countidx] = elapsedTime;
+    //       Countidx += 1;
+    //       if(Countidx >= SAMPLE_SIZE){
+    //           Countidx = 0;
+    //       }
 
-    // モーターを動作させる
+    //       // 次回のために開始時刻を更新
+    //       startTime = now;
+    //   }
 
-    // 割り込み待ち→割り込みが入ったらrestTime秒間モーターを停止させるのと割り込みが入るまでの時間を格納する
-    // 割り込みが入ったらタイマー変数を更新して移動時間を監視する
-    // 以下は割り込みが入ったときの処理
-    // まず異常チェック
-    // if (checkZero(oneWayTimes)) {
-    //     mean = calcMean(oneWayTimes);
-    //     if (currentTime > mean * 1.5) {
-    //         // 異常検出 → 配列に入れずに一時停止
-    //         examMode = EXAM_PAUSED;
-    //         return;
-    //     }
-    // }
-    // 以下は割り込みが入ったときに行う処理。
-    // oneWayTimes[Countidx] = currentTime;
-    // Countidx += 1;
-    // if(Countidx >= SAMPLE_SIZE){
-    //     Countidx = 0;
-    //  }
+      // モーターを動作させる
 
-    // 停止ボタンが押されたらexamPausedへ遷移
+      // 停止ボタンが押されたらexamPausedへ遷移
+
+      // 試験が終了したら試験完了処理に遷移する
 }
 
 // 試験一時停止中

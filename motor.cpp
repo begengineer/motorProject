@@ -118,3 +118,67 @@ void stopMotor() {
 void brakeMotor() {
   MotorControl(motorConfig, motorState, MOTOR_BRAKE, 255);
 }
+
+// モーター状態のデバッグ出力
+void debugPrintMotor() {
+  Serial.println("=== Motor Status ===");
+
+  // 方向表示
+  Serial.print("Direction: ");
+  switch (motorState.direction) {
+    case MOTOR_STOP:
+      Serial.println("STOP");
+      break;
+    case MOTOR_FORWARD:
+      Serial.println("FORWARD");
+      break;
+    case MOTOR_REVERSE:
+      Serial.println("REVERSE");
+      break;
+    case MOTOR_BRAKE:
+      Serial.println("BRAKE");
+      break;
+    default:
+      Serial.println("UNKNOWN");
+      break;
+  }
+
+  // Dutyサイクル
+  Serial.print("Duty Cycle: ");
+  Serial.print(motorState.dutyCycle);
+  Serial.print(" / ");
+  Serial.println(motorConfig.maxDuty);
+
+  // 動作状態
+  Serial.print("Is Running: ");
+  Serial.println(motorState.isRunning ? "YES" : "NO");
+
+  // 最終更新時刻
+  Serial.print("Last Update: ");
+  Serial.print(motorState.lastUpdateTime);
+  Serial.println(" ms");
+
+  // ピン設定状態
+  Serial.println("Pin Configuration:");
+  Serial.print("  PWM Pin: ");
+  Serial.print(motorConfig.pwmPin);
+  Serial.print(" (Value: ");
+  Serial.print(motorState.dutyCycle);
+  Serial.println(")");
+
+  Serial.print("  Dir Pin1: ");
+  Serial.print(motorConfig.dirPin1);
+  Serial.print(" = ");
+  Serial.println(digitalRead(motorConfig.dirPin1) ? "HIGH" : "LOW");
+
+  Serial.print("  Dir Pin2: ");
+  Serial.print(motorConfig.dirPin2);
+  Serial.print(" = ");
+  Serial.println(digitalRead(motorConfig.dirPin2) ? "HIGH" : "LOW");
+
+  // 反転設定
+  Serial.print("Invert Direction: ");
+  Serial.println(motorConfig.invertDirection ? "YES" : "NO");
+
+  Serial.println("====================");
+}

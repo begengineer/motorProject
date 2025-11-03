@@ -39,3 +39,4 @@ bool MotorControl(MotorConfig &config, MotorState &state, MotorDirection directi
 bool driveMotor(MotorDirection direction, int dutyCycle);
 void stopMotor();
 void brakeMotor();
+void debugPrintMotor(); // モーター状態のデバッグ出力

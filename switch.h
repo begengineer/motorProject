@@ -16,3 +16,5 @@ extern int switchState[8];
 // プロトタイプ宣言
 void initSwitches() ; // スイッチ初期化
 uint8_t readSwitches(); // スイッチ読み込み
+bool checkSWState(int bit); // 指定のスイッチ状態の読み取り
+void debugPrintSwitches(); // スイッチ状態のデバッグ出力
